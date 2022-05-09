@@ -21,6 +21,7 @@ public class Cell {
         int parentId = parent.getId();
         int row = parentId / size;
         int col = parentId % size;
+        // Loop to get all the 8 neighbours of Cell
         for(int i = -1; i<2; i++ ){
             for(int j=-1; j<2; j++){
                 int newId = (row+i)*size+(col+j);
@@ -39,12 +40,6 @@ public class Cell {
                 else{
                     Cell c = new Cell(newId) ;
                     c.id = newId;
-//                    if(Math.abs(i)==1 && Math.abs(j)==1){
-//                        c.g = parent.getG()+14;
-//                    }
-//                    else{
-//                        c.g = parent.getG()+10;
-//                    }
                     c.g = calcH(parentId, c.id, size)+parent.getG();
                     c.h = calcH(c.id , destId, size);
                     c.f = c.g + c.h;
@@ -63,8 +58,6 @@ public class Cell {
         int cY = cId%size;
         int  dX = destId/size;
         int dY = destId%size;
-//        double dist = Math.sqrt(Math.abs((dX-cX)*(dX-cX))+Math.abs((dY-cY)*(dY-cY)));
-//        return dist;
         int x = Math.abs(dX-cX);
         int y = Math.abs(dY-cY);
         return (10*(x+y)-6*(Math.min(x,y)));

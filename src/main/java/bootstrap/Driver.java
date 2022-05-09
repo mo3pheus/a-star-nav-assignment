@@ -15,15 +15,13 @@ public class Driver {
     static Logger logger = LoggerFactory.getLogger(Driver.class);
 
     /**
-     * @param args --log.file.path executionLogs --log.level INFO --difficulty easy --start 3 --dest 58 --size 10
+     * @param args --log.file.path executionLogs --log.level INFO --walls 5,6,8,10,15,26,32,54,69,77,79,80 --start 3 --dest 58 --size 10
      * @throws Exception 0 - log.file.path
      *                   1 - log.level
-     *                   2 - difficulty(easy, medium, hard, selfgenerate)
+     *                   2 - walls 5,6,8,10,15,26,32,54,69,77,79,80
      *                   3 - start (1-100)
      *                   4 - dest (1-100)
      *                   5 - size 10
-     *                   6
-
      */
     public static void main(String[] args) throws Exception {
         configureLogging(Driver.getArgument(args, "log.file.path"),
@@ -32,9 +30,9 @@ public class Driver {
         int[][] maze =  gmaze.getMaze();
         List<Integer> walls = gmaze.getWalls();
         logger.info("Maze and walls generated");
-        Astar run = new Astar(maze, args,  walls);
-        Cell result = run.findPath();
-        run.printPath(result);
+        Astar navRun = new Astar(maze, args,  walls);
+        Cell result = navRun.findPath();
+        navRun.printPath(result);
 
     }
 
@@ -67,18 +65,6 @@ public class Driver {
         return dailyRollingFileAppender.getFile();
     }
 
-//    public static String getArgument(String[] args, String argumentName) {
-//        for (int i = 0; i < args.length; i++) {
-//            if (args[i].contains("--")) {
-//                String arg = args[i].replaceAll("--", "");
-//                if (arg.equals(argumentName)) {
-//                    return args[i + 1];
-//                }
-//            }
-//        }
-//        return null;
-//    }
-
     public static String getArgument(String[] args, String argumentName) throws ArrayIndexOutOfBoundsException, NumberFormatException{
         try {
             for (int i = 0; i < args.length; i++) {
@@ -91,11 +77,11 @@ public class Driver {
             return null;
         }
         catch (NumberFormatException e1){
-            System.out.println("Enter correct args values");
+            e1.printStackTrace();
             return null;
         }
-        catch (ArrayIndexOutOfBoundsException e){
-            System.out.println("Enter the last argument value");
+        catch (ArrayIndexOutOfBoundsException e2){
+            e2.printStackTrace();
             return null;
         }
     }

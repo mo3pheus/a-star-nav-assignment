@@ -39,7 +39,8 @@ public class Astar {
         start.setParent(null);
         open.add(start);
 
-        while (!open.isEmpty()) {
+        // Time Complexity O(n^3)
+        while (!open.isEmpty()) {  //n+1
             Cell current = open.peek();
             logger.info("Current Cell :"+ current.getId()+ "g, h , f :"+ current.getG()+ ", "+ current.getH()+ ", "+ current.getF());
             open.remove(current);
@@ -48,48 +49,49 @@ public class Astar {
                 return current;
             }
 
-            List<Cell> neighbour = new ArrayList<>();
-            neighbour = current.calcNeighbour(current, walls, size, dest.getId());
+            List<Cell> neighbours = new ArrayList<>();
+            neighbours = current.calcNeighbour(current, walls, size, dest.getId());
 
-            for (Cell n : neighbour) {
-                logger.debug("Neighbour Cell :"+ n.getId()+ "g, h , f :"+ n.getG()+ ", "+ n.getH()+ ", "+ n.getF());
+            for (Cell neighbour : neighbours) { // n*(n+1)
+                logger.debug("Neighbour Cell :"+ neighbour.getId()+ "g, h , f :"+ neighbour.getG()+ ", "+ neighbour.getH()+ ", "+ neighbour.getF());
                 Iterator<Cell> iterate1 = closed.iterator();
-                boolean presInClose = false;
-                Cell nc = null;
-                while(iterate1.hasNext()) {
-                    nc = iterate1.next();
-                    if(nc.getId()==n.getId()){
-//                        presInClose = true;
-                        presInClose=true;
-                        logger.debug("Closed set contains n");
-                        if(n.getG()<nc.getG()){
-                            logger.debug("Closed List contains n and n is nearer");
-                            closed.remove(nc);
-                            presInClose = false;
+                boolean presentInClose = false;
+                Cell cellInClosed = null;
+                // Checking if there is same cellId in closed list
+                while(iterate1.hasNext()) {  // n*n*(n+1)
+                    cellInClosed = iterate1.next();
+                    if(cellInClosed.getId()==neighbour.getId()){
+                        presentInClose=true;
+                        logger.debug("Closed set contains neighbour");
+                        if(neighbour.getG()< cellInClosed.getG()){
+                            logger.debug("Closed List contains neighbour and neighbour is nearer");
+                            closed.remove(cellInClosed);
+                            presentInClose = false;
                         }
                         break;
                     }
                 }
-                if(walls.contains(n.getId())){
+                if(walls.contains(neighbour.getId())){
                     break;
                 }
                 Iterator<Cell> iterate = open.iterator();
-                boolean presInOpen = false;
-                Cell n1 = null;
-                while(iterate.hasNext()) {
-                    n1 = iterate.next();
-                    if(n1.getId()==n.getId()){
-                        logger.debug("Already present Neighbour Cell in Open list :"+ n1.getId()+ "g, h , f :"+ n1.getG()+ ", "+ n1.getH()+ ", "+ n1.getF());
-                        if(n.getG()<n1.getG()){
-                            presInOpen=true;
-                            logger.debug("Open List contains n and n is nearer");
+                boolean presentInOpen = false;
+                Cell cellInOpen = null;
+                // checking if there is same cellId which has higher g value
+                while(iterate.hasNext()) { // n*n*(n+1)
+                    cellInOpen = iterate.next();
+                    if(cellInOpen.getId()==neighbour.getId()){
+                        logger.debug("Already present Neighbour Cell in Open list :"+ cellInOpen.getId()+ "g, h , f :"+ cellInOpen.getG()+ ", "+ cellInOpen.getH()+ ", "+ cellInOpen.getF());
+                        if(neighbour.getG()<cellInOpen.getG()){
+                            presentInOpen=true;
+                            logger.debug("Open List contains neighbour and neighbour is nearer");
                             Iterator<Cell> iterate2 = open.iterator();
 
                             while(iterate2.hasNext()) {
                                 Cell temp = iterate2.next();
-                                if(temp.getId()==n.getId()){
+                                if(temp.getId()==neighbour.getId()){
                                     open.remove(temp);
-                                    presInOpen=false;
+                                    presentInOpen=false;
                                     break;
                                 }
 
@@ -99,14 +101,12 @@ public class Astar {
                     }
                 }
 
-
-                if(!presInClose && !presInOpen){
-                    open.add(n);
-                    n.setParent(current);
+                // If the cell is not present in closed or open list
+                if(!presentInClose && !presentInOpen){
+                    open.add(neighbour);
+                    neighbour.setParent(current);
                 }
             }
-//            open.remove(current);
-//            closed.add(current);
         }
         return null;
     }
@@ -117,7 +117,7 @@ public class Astar {
         mainFrame.setLayout(new GridLayout(size, size));
         mainFrame.setLocationRelativeTo(null);
         if(result==null || walls.contains(start.getId())){
-            System.out.println("Invalid");
+            logger.info("Invalid Path");
         }
         else{
             List<Integer> resList = new ArrayList<>();
@@ -126,26 +126,21 @@ public class Astar {
                 result = result.getParent();
                 resList.add(result.getId());
             }
-            System.out.println("");
             for(int i = 0 ; i<size; i++){
                 for(int j=0; j<size; j++) {
                     if(walls.contains(amaze[i][j])){
-                        System.out.print(ANSI_RED+"X" + "\t"+ANSI_RESET);
                         JLabel label = makeLabel('X');
                         mainFrame.add(label);
                     }
                     else if(resList.contains(amaze[i][j])){
-                        System.out.print(ANSI_GREEN+"P" + "\t"+ANSI_RESET);
                         JLabel label = makeLabel('P');
                         mainFrame.add(label);
                     }
                     else{
-                        System.out.print(amaze[i][j] + "\t");
                         JLabel label = makeLabel('A');
                         mainFrame.add(label);
                     }
                 }
-                System.out.println("");
             }
             mainFrame.pack();
             mainFrame.setVisible(true);

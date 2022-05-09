@@ -5,53 +5,60 @@ import domain.Cell;
 import domain.CellComparator;
 import domain.GenerateMaze;
 import org.junit.Assert;
-import org.junit.Rule;
+import org.junit.Before;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
 
 import java.util.*;
 
-public class DriverTest {
+public class AstarTest {
+    @RunWith(JUnit4.class)
+    public class BeforeAnnotationsUnitTest {
 
-    @Test
-    public void ValidPath() {
-        List<Integer> wallsList = new ArrayList<>();
-        String arg = "--log.file.path executionLogs --log.level INFO --difficulty easy --start 3 --dest 58 --size 10";
-        String[] args = arg.split(" ");
-        GenerateMaze gmaze = new GenerateMaze(args);
-        int[][] maze = gmaze.getMaze();
-        Integer[] walls = new Integer[]{81, 82, 51, 83, 52, 53, 93};
-        wallsList.addAll(Arrays.asList(walls));
-        int destId = Integer.parseInt(Driver.getArgument(args, "dest"));
-        Astar run = new Astar(maze, args, Arrays.asList(walls));
-        Cell Result = run.findPath();
-        Assert.assertEquals(destId, Result.getId());
-    }
+        private List<Integer> wallsList;
+        private String[] args;
+        private int[][] maze;
 
-    @Test
-    public void InvalidPath() {
-        List<Integer> wallsList = new ArrayList<>();
-        String arg = "--log.file.path executionLogs --log.level INFO --difficulty easy --start 3 --dest 58 --size 10";
-        String[] args = arg.split(" ");
-        GenerateMaze gmaze = new GenerateMaze(args);
-        int[][] maze = gmaze.getMaze();
-        Integer[] walls = new Integer[]{49,48,47,57,67,68,69};
-        wallsList.addAll(Arrays.asList(walls));
-        int destId = Integer.parseInt(Driver.getArgument(args, "dest"));
-        Astar run = new Astar(maze, args, Arrays.asList(walls));
-        Cell Result = run.findPath();
-        Assert.assertEquals(null, Result);
+        @Before
+        public void init() {
+            wallsList = new ArrayList<>();
+            String arg = "--log.file.path executionLogs --log.level INFO --walls 5,6,8,10,15,26,32,54,69,77,79,80 --start 3 --dest 58 --size 10";
+            args = arg.split(" ");
+            GenerateMaze gmaze = new GenerateMaze(args);
+            int[][] maze = gmaze.getMaze();
+        }
+
+        @Test
+        public void validPath() {
+            Integer[] walls = new Integer[]{5,6,8,10,15,26,32,54,69,77,79,80};
+            wallsList.addAll(Arrays.asList(walls));
+            int destId = Integer.parseInt(Driver.getArgument(args, "dest"));
+            Astar navRun = new Astar(maze, args, Arrays.asList(walls));
+            Cell Result = navRun.findPath();
+            Assert.assertEquals(destId, Result.getId());
+        }
+
+        @Test
+        public void invalidPath() {
+            Integer[] walls = new Integer[]{49,48,47,57,67,68,69};
+            wallsList.addAll(Arrays.asList(walls));
+            int destId = Integer.parseInt(Driver.getArgument(args, "dest"));
+            Astar navRun = new Astar(maze, args, Arrays.asList(walls));
+            Cell Result = navRun.findPath();
+            Assert.assertEquals(null, Result);
+        }
     }
 
     @Test(expected = NumberFormatException.class)
-    public void testInvalidArgs() {
+    public void testMissingValueLast() {
         String arg = "--log.file.path executionLogs --log.level INFO --difficulty easy --start 3 --dest 58 --size";
         String[] args = arg.split(" ");
         int size = Integer.parseInt(Driver.getArgument(args, "size"));
     }
 
     @Test(expected = NumberFormatException.class)
-    public void testInvalidArgs1() {
+    public void testMissingValueMiddle() {
         String arg = "--log.file.path executionLogs --log.level INFO --difficulty easy --start --dest 58 --size 10";
         String[] args = arg.split(" ");
         int start = Integer.parseInt(Driver.getArgument(args, "start"));
